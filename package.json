@@ -1,0 +1,19 @@
+{
+  "name": "lmdns",
+  "version": "1.0.0",
+  "description": "a dns record pannel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liumapp/dns.git"
+  },
+  "author": "liumapp",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/liumapp/dns/issues"
+  },
+  "homepage": "https://github.com/liumapp/dns#readme"
+}

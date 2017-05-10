@@ -1,0 +1,16 @@
+{
+    "name": "liumapp/dns",
+    "description": "a dns record pannel",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "liumapp",
+            "email": "liumapp.com@gmail.com"
+        }
+    ],
+    "require": {
+        "doctrine/orm": "2.4.*",
+        "symfony/yaml": "2.*"
+    }
+}
