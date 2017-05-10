@@ -17,10 +17,10 @@ class db {
         $config = new \Doctrine\DBAL\Configuration();
 //..
         $connectionParams = array(
-            'dbname' => 'foo',
+            'dbname' => 'whmcs',
             'user' => 'root',
             'password' => 'adminadmin',
-            'host' => 'localhost',
+            'host' => '118.190.133.67',
             'driver' => 'pdo_mysql',
         );
         $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
