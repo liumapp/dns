@@ -33,4 +33,10 @@ $queryBuilder
     ->setParameter(3, addslashes($_POST['subdomain']))
     ->setParameter(4, addslashes($_POST['value']))
 ;
-$queryBuilder->execute();
+
+if($queryBuilder->execute()) {
+    echo 'success';
+} else {
+    echo 'error';
+}
+

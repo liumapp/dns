@@ -23,6 +23,7 @@ class db {
             'host' => '118.190.133.67',
             'driver' => 'pdo_mysql',
         );
+
         $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
 
         return $conn;
