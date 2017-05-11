@@ -16,6 +16,10 @@ $conn = \liumapp\dns\models\db::getInstance();
 
 $queryBuilder = $conn->createQueryBuilder();
 
+$uid = 1;
+
+$domainId = 1;
+
 $queryBuilder
     ->insert('lmdns')
     ->values(
@@ -27,16 +31,21 @@ $queryBuilder
             'value' => '?',
         )
     )
-    ->setParameter(0, addslashes($_POST['uid']))
-    ->setParameter(1, addslashes($_POST['domainId']))
+    ->setParameter(0, $uid)
+    ->setParameter(1, $domainId)
     ->setParameter(2, addslashes($_POST['type']))
     ->setParameter(3, addslashes($_POST['subdomain']))
     ->setParameter(4, addslashes($_POST['value']))
 ;
+$queryBuilder->execute();
 
-if($queryBuilder->execute()) {
-    echo 'success';
-} else {
-    echo 'error';
-}
+$sql = "SELECT LAST_INSERT_ID()";
 
+$stmt = $conn->query($sql); // Simple, but has several drawbacks
+
+$result = $stmt->fetchColumn(0);
+
+echo $result;//返回id
+
+
+//echo $queryBuilder->execute();

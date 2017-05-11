@@ -18,7 +18,7 @@ $queryBuilder = $conn->createQueryBuilder();
 $uid = 1;
 $domainId = 1;
 $queryBuilder
-    ->select('type', 'subdomain','value')
+    ->select('id','type', 'subdomain','value')
     ->from('lmdns')
     ->where('uid = ? and domainId = ?')
     ->setParameter(0, $uid)
