@@ -8,6 +8,8 @@
  * Time: 9:51 AM
  */
 
+namespace liumapp\dns\models;
+
 class webnic  {
 
     protected $serverUrl = 'https://my.webnic.cc/jsp/pn_valuesadd.jsp';
@@ -69,6 +71,24 @@ class webnic  {
 
     public $sub10; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
 
+    public function initData(array $data)
+    {
+        foreach ($data as $key => $value) {
+
+            $this->{$key} = $value;
+
+        }
+    }
+
+    public function registerRecord ()
+    {
+
+    }
+
+    public function isSuccess ()
+    {
+
+    }
 
     /**
      * 生成ochecksum
@@ -106,6 +126,8 @@ class webnic  {
                 return 'authentication failed';
         }
     }
+
+
 
     public function registerARecord ()
     {

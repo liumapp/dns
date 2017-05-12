@@ -25,7 +25,7 @@ class dns
         echo "<script src='vendor2/vendor/liumapp/dnspannel/dist/dnspannel.js'></script>";
     }
 
-        public function renderTable ()
+    public function renderTable ()
     {
         echo '
 <div class="lm-dns-container">
@@ -46,11 +46,12 @@ class dns
         ';
     }
 
-        public function renderJs()
+    public function renderJs()
     {
         echo '
 <script>
     $(function (){
+        $.lmParam.domainId = '.$this->domainId.';
         $.lmParam.addDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/addDnsRecord.php";
         $.lmParam.initDataUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/initRecord.php";
         $.lmParam.updateDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/updateDnsRecord.php";

@@ -17,37 +17,47 @@ require_once __DIR__ . '/../../../../../init.php';
 
 $ca = new ClientArea();
 
-$conn = \liumapp\dns\models\db::getInstance();
-
-$queryBuilder = $conn->createQueryBuilder();
-
 $uid = $ca->getUserID();
 
-$domainId = 1;
+$domainId = $_POST['domainId'];
 
-$queryBuilder
-    ->insert('lmdns')
-    ->values(
-        array(
-            'uid' => '?',
-            'domainId' => '?',
-            'type' => '?',
-            'subdomain' => '?',
-            'value' => '?',
-        )
-    )
-    ->setParameter(0, $uid)
-    ->setParameter(1, $domainId)
-    ->setParameter(2, addslashes($_POST['type']))
-    ->setParameter(3, addslashes($_POST['subdomain']))
-    ->setParameter(4, addslashes($_POST['value']))
-;
-$queryBuilder->execute();
+$data = [
+    'uid' => $uid,
+    'domainId' => $domainId,
+    'type' => addslashes($_POST['type']),
+    'subdomain' => addslashes($_POST['subdomain']),
+    'value' => addslashes($_POST['value']),
+];
 
-$sql = "SELECT LAST_INSERT_ID()";
+$webnic = new \liumapp\dns\models\webnic();
 
-$stmt = $conn->query($sql); // Simple, but has several drawbacks
+$lmdns = new \liumapp\dns\models\lmdns();
 
-$result = $stmt->fetchColumn(0);
+$webnic->initData($data);
 
-echo $result;//返回id
+$lmdns->initData($data);
+
+$index = $lmdns->getNewIndex();
+
+$status = $webnic->registerRecord();
+
+if ($webnic->isSuccess()) {
+
+    $lmdns->initData(['index' => $index]);
+
+    if ( $lmdns->addRecord() ) {
+
+        echo $lmdns->getNewRecordId();
+
+    } else {
+
+        echo 'save to mysql faild';
+
+    }
+
+} else {
+
+    echo false;
+
+}
+
