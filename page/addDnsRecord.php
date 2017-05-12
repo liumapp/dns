@@ -7,16 +7,21 @@
  * Date: 5/10/17
  * Time: 2:30 PM
  */
+use WHMCS\ClientArea;
 
 require_once '../vendor/autoload.php';
 
 require_once '../load.php';
 
+require_once __DIR__ . '/../../../../../init.php';
+
+$ca = new ClientArea();
+
 $conn = \liumapp\dns\models\db::getInstance();
 
 $queryBuilder = $conn->createQueryBuilder();
 
-$uid = 1;
+$uid = $ca->getUserID();
 
 $domainId = 1;
 
@@ -46,6 +51,3 @@ $stmt = $conn->query($sql); // Simple, but has several drawbacks
 $result = $stmt->fetchColumn(0);
 
 echo $result;//返回id
-
-
-//echo $queryBuilder->execute();
