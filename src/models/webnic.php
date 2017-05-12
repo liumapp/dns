@@ -12,6 +12,18 @@ namespace liumapp\dns\models;
 
 class webnic  {
 
+    public $uid;
+
+    public $domainId;
+
+    public $type;
+
+    public $subdomain;
+
+    public $value;
+
+    public $ipIndex;
+
     protected $serverUrl = 'https://my.webnic.cc/jsp/pn_valuesadd.jsp';
 
     /**
@@ -31,45 +43,6 @@ class webnic  {
 
     public $action = 'apointer'; //A记录解析：apointer
 
-    public $ip1; //第一个A值,以 IP 地址格式输入。
-
-    public $sub1; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
-
-    public $ip2; //第一个A值,以 IP 地址格式输入。
-
-    public $sub2; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
-
-    public $ip3; //第一个A值,以 IP 地址格式输入。
-
-    public $sub3; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
-
-    public $ip4; //第一个A值,以 IP 地址格式输入。
-
-    public $sub4; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
-
-    public $ip5; //第一个A值,以 IP 地址格式输入。
-
-    public $sub5; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
-
-    public $ip6; //第一个A值,以 IP 地址格式输入。
-
-    public $sub6; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
-
-    public $ip7; //第一个A值,以 IP 地址格式输入。
-
-    public $sub7; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
-
-    public $ip8; //第一个A值,以 IP 地址格式输入。
-
-    public $sub8; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
-
-    public $ip9; //第一个A值,以 IP 地址格式输入。
-
-    public $sub9; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
-
-    public $ip10; //第一个A值,以 IP 地址格式输入。
-
-    public $sub10; //指向 ip1的子域名,建议将参数设置为www,否则 www.yourdomain.com 无法正常解析。(www.yourdomain.com就填写为www即可)
 
     public function initData(array $data)
     {
@@ -82,7 +55,18 @@ class webnic  {
 
     public function registerRecord ()
     {
-
+        switch ($this->type) {
+            case 'A':
+                return $this->registerARecord();
+            case 'CNAME':
+                return $this->registerCNAMERecord();
+            case 'MX':
+                return $this->registerMXRecord();
+            case 'SPF':
+                return $this->registerSPFRecord();
+            default:
+                break;
+        }
     }
 
     public function isSuccess ()

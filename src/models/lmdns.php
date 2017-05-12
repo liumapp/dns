@@ -12,6 +12,7 @@ namespace liumapp\dns\models;
 
 class lmdns
 {
+
     public $uid;
 
     public $domainId;
@@ -22,8 +23,9 @@ class lmdns
 
     public $value;
 
-    public $index;
+    public $ipIndex;
 
+    public $tableName = 'lmdns';
 
     /**
      * @var \Doctrine\DBAL\Connection
@@ -46,18 +48,30 @@ class lmdns
 
     public function initData(array $data)
     {
-
         foreach ($data as $key => $value) {
 
             $this->{$key} = $value;
 
         }
-
     }
 
     public function getNewIndex ()
     {
-        
+        $result = $this->queryBuilder
+             ->select('ipIndex')
+             ->from($this->tableName)
+             ->where('uid = ? and domainId = ? and type = ?')
+             ->orderBy('ipIndex' , 'DESC')
+             ->setParameter(0 , $this->uid)
+             ->setParameter(1 , $this->domainId)
+             ->setParameter(2 , $this->type)
+             ->execute();
+        $results = $result->fetch();
+        if (!isset($results['ipIndex'])) {
+            return 1;
+        } else {
+            return $result['ipIndex'] + 1;
+        }
     }
 
     public function getNewRecordId ()
@@ -94,6 +108,6 @@ class lmdns
 
         return $this->queryBuilder->execute();
 
-
     }
+
 }
