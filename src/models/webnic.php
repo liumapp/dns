@@ -43,6 +43,7 @@ class webnic  {
 
     public $action = 'apointer'; //A记录解析：apointer
 
+    protected $isSuccess = false;
 
     public function initData(array $data)
     {
@@ -71,7 +72,7 @@ class webnic  {
 
     public function isSuccess ()
     {
-
+        return $this->isSuccess;
     }
 
     /**
@@ -115,7 +116,12 @@ class webnic  {
 
     public function registerARecord ()
     {
+        $ch = curl_init();
+        $url = $this->serverUrl;
 
+        $data = [
+            
+        ];
     }
 
     public function registerMXRecord ()
