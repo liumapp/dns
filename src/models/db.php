@@ -9,6 +9,8 @@
  */
 namespace liumapp\dns\models;
 
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 class db {
 
     public static function getInstance()

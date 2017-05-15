@@ -10,6 +10,8 @@
 
 namespace liumapp\dns\models;
 
+require_once  __DIR__ . '/../../../../../../lmConfig.php';
+
 class webnic  {
 
     public $uid;
@@ -41,7 +43,13 @@ class webnic  {
 
     public $domain; //需要更新的域名
 
-    public $action = 'apointer'; //A记录解析：apointer
+    public $aAction = 'apointer'; //A记录解析：apointer
+
+    public $cnameAction = 'cnrecord';
+
+    public $mxAction = 'mxrecord';
+
+    public $spfAction = 'spfrecord';
 
     protected $isSuccess = false;
 
@@ -54,19 +62,38 @@ class webnic  {
         }
     }
 
+    public function generateAccountInfo ()
+    {
+        $config = new \lmConfig();
+        $this->source = $config->source;
+        $this->password = $config->api;
+    }
+
     public function registerRecord ()
     {
+        $this->generateAccountInfo();
+        $this->otime = date('Y-m-d H:m:s' , time());
+        $this->generateOchecksum();
         switch ($this->type) {
             case 'A':
-                return $this->registerARecord();
+                $result =  $this->registerARecord();
+                break;
             case 'CNAME':
-                return $this->registerCNAMERecord();
+                $result = $this->registerCNAMERecord();
+                break;
             case 'MX':
-                return $this->registerMXRecord();
+                $result = $this->registerMXRecord();
+                break;
             case 'SPF':
-                return $this->registerSPFRecord();
+                $result = $this->registerSPFRecord();
+                break;
             default:
                 break;
+        }
+        if (($info = $this->translateResult($result)) == 'success') {
+            $this->isSuccess = true;
+        } else {
+            throw new \ErrorException($info);
         }
     }
 
@@ -83,25 +110,16 @@ class webnic  {
         $this->ochecksum = md5($this->source . $this->otime . md5($this->password));
     }
 
-    private function generateAction ()
-    {
-        $this->action = [
-            'A' => 'apointer',
-            'MX' => 'mxrecord',
-            'CNAME' => 'cnrecord',
-            'SPF' => 'spfrecord'
-        ];
-    }
-
     /**
      * 解析返回结果
      */
     public function translateResult ($data)
     {
+        $data = substr($data , 0 , 1);
         switch ($data) {
             case 0 :
                 return 'success';
-            case 1 :
+            case 2 :
                 return 'the domain is not yours';//不属于你的代理商，不是指用户
             case 4 :
                 return 'DNS server wrong';
@@ -112,31 +130,131 @@ class webnic  {
         }
     }
 
-
+    private function webnic_params($postfields, $key = "") {
+        $query_string = "";
+        foreach ($postfields AS $k => $v) {
+            if (is_array($v)) {
+                $query_string.=$this->webnic_params($v, $k);
+            } else {
+                if ($key != "") {
+                    $k = $key;
+                }
+                $query_string .= "$k=" . urlencode($v) . "&";
+            }
+            //$query_string .= "$k=".$v."&";
+        }
+        return $query_string;
+    }
 
     public function registerARecord ()
     {
         $ch = curl_init();
         $url = $this->serverUrl;
+        $data = array(
+            'encoding' => 'utf-8',
+            'source' => $this->source,
+            'otime' => $this->otime,
+            'ochecksum' => $this->ochecksum,
+            'domain' => $this->domain,
+            'action' => $this->aAction,
+            'ip' . $this->ipIndex => $this->value,
+            'sub' . $this->ipIndex => $this->subdomain
+        );
+        $queryString = $this->webnic_params($data);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            $queryString
+        );
 
-        $data = [
-            
-        ];
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
     }
 
     public function registerMXRecord ()
     {
-
+        $ch = curl_init();
+        $url = $this->serverUrl;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            http_build_query(
+                array(
+                    'source' => $this->source,
+                    'otime' => $this->otime,
+                    'ochecksum' => $this->ochecksum,
+                    'domain' => $this->domain,
+                    'action' => $this->mxAction,
+                    'mx' . $this->ipIndex => $this->value
+                )
+            )
+        );
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
     }
 
     public function registerCNAMERecord ()
     {
+        $ch = curl_init();
+        $url = $this->serverUrl;
+        $data = [
+            'source' => $this->source,
+            'otime' => $this->otime,
+            'ochecksum' => $this->ochecksum,
+            'domain' => $this->domain,
+            'action' => $this->cnameAction,
+        ];
+        if ($this->ipIndex == 1 ) {
+            $data['c'] = $this->value;
+            $data['cs'] = $this->subdomain;
+        } else {
+            $data['c' . $this->ipIndex] = $this->value;
+            $data['cs' . $this->ipIndex] = $this->subdomain;
+        }
 
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            http_build_query(
+                $data
+            )
+        );
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
     }
 
     public function registerSPFRecord ()
     {
+        $ch = curl_init();
+        $url = $this->serverUrl;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            http_build_query(
+                array(
+                    'source' => $this->source,
+                    'otime' => $this->otime,
+                    'ochecksum' => $this->ochecksum,
+                    'domain' => $this->domain,
+                    'action' => $this->spfAction,
+                    'spf' . $this->ipIndex => $this->value
+                )
+            )
+        );
 
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
     }
 
 }

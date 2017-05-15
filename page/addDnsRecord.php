@@ -9,7 +9,7 @@
  */
 use WHMCS\ClientArea;
 
-require_once '../vendor/autoload.php';
+use WHMCS\Database\Capsule;
 
 require_once '../load.php';
 
@@ -29,6 +29,9 @@ $data = [
     'value' => addslashes($_POST['value']),
 ];
 
+$domain = Capsule::table('tbldomains')
+    ->where('id', '=', $domainId)->pluck('domain');
+
 $webnic = new \liumapp\dns\models\webnic();
 
 $lmdns = new \liumapp\dns\models\lmdns();
@@ -39,7 +42,7 @@ $lmdns->initData($data);
 
 $index = $lmdns->getNewIndex();
 
-$webnic->initData(['ipIndex' => $index]);
+$webnic->initData(['ipIndex' => $index , 'domain' => $domain]);
 
 $status = $webnic->registerRecord();
 

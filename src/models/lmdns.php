@@ -10,6 +10,8 @@
 
 namespace liumapp\dns\models;
 
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 class lmdns
 {
 
