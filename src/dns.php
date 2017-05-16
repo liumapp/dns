@@ -22,6 +22,7 @@ class dns
     public function init ()
     {
         echo "<link rel='stylesheet' href='vendor2/vendor/liumapp/dnspannel/dist/dnspannel.css'>";
+        echo "<script src='vendor2/vendor/liumapp/dnspannel/node_modules/seajs/dist/sea.js'></script>";
         echo "<script src='vendor2/vendor/liumapp/dnspannel/dist/dnspannel.js'></script>";
     }
 
@@ -50,12 +51,16 @@ class dns
     {
         echo '
 <script>
-    $(function (){
-        $.lmParam.domainId = '.$this->domainId.';
-        $.lmParam.addDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/addDnsRecord.php";
-        $.lmParam.initDataUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/initRecord.php";
-        $.lmParam.updateDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/updateDnsRecord.php";
-        $.lmParam.deleteDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/deleteDnsRecord.php";
+seajs.use(\'main\' , function (main) {
+        $(document).ready(function (){
+            $.lmParam.domainId = '.$this->domainId.';
+            $.lmParam.addDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/addDnsRecord.php";
+            $.lmParam.initDataUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/initRecord.php";
+            $.lmParam.updateDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/updateDnsRecord.php";
+            $.lmParam.deleteDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/deleteDnsRecord.php";
+            main.init();
+        });
+
     });
 </script>
         ';

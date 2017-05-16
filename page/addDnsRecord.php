@@ -48,7 +48,7 @@ $status = $webnic->registerRecord();
 
 if ($webnic->isSuccess()) {
 
-    $lmdns->initData(['index' => $index]);
+    $lmdns->initData(['ipIndex' => $index]);
 
     if ( $lmdns->addRecord() ) {
 

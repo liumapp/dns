@@ -87,9 +87,19 @@ class lmdns
         return $result;//返回id
     }
 
+    public function validate ()
+    {
+        if ($this->type == '') {
+            $this->type = 'A';
+        }
+        if ($this->subdomain == '') {
+            $this->subdomain = '@';
+        }
+    }
+
     public function addRecord ()
     {
-
+        $this->validate();
         $this->queryBuilder
             ->insert('lmdns')
             ->values(
@@ -99,6 +109,7 @@ class lmdns
                     'type' => '?',
                     'subdomain' => '?',
                     'value' => '?',
+                    'ipIndex' => '?',
                 )
             )
             ->setParameter(0, $this->uid)
@@ -106,6 +117,7 @@ class lmdns
             ->setParameter(2, $this->type)
             ->setParameter(3, $this->subdomain)
             ->setParameter(4, $this->value)
+            ->setParameter(5, $this->ipIndex)
         ;
 
         return $this->queryBuilder->execute();

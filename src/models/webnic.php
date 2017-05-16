@@ -88,6 +88,7 @@ class webnic  {
                 $result = $this->registerSPFRecord();
                 break;
             default:
+                $this->registerARecord();
                 break;
         }
         if (($info = $this->translateResult($result)) == 'success') {
