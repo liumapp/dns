@@ -8,29 +8,36 @@
  * Time: 3:42 PM
  */
 
+use WHMCS\ClientArea;
 
-require_once '../vendor/autoload.php';
+use WHMCS\Database\Capsule;
 
 require_once '../load.php';
 
-$conn = \liumapp\dns\models\db::getInstance();
+require_once __DIR__ . '/../../../../../init.php';
 
-$queryBuilder = $conn->createQueryBuilder();
+$ca = new ClientArea();
 
-$uid = 1;
+$id = addslashes($_POST['id']);
 
-$domainId = 1;
+$uid = $ca->getUserID();
 
-$queryBuilder->delete('lmdns')
-    ->where('id = :record_id')
-    ->andWhere('uid = :uid')
-    ->andWhere('domainId = :domainId')
-    ->setParameter(':record_id', addslashes($_POST['id']))
-    ->setParameter(':uid' , $uid)
-    ->setParameter(':domainId' , $domainId)
-    ->execute();
+$domainId = addslashes($_POST['domainId']);
 
-echo $queryBuilder->execute();
+$lmdns = new \liumapp\dns\models\lmdns();
+
+$lmdns->initData([
+    'id' => $id,
+    'uid' => $uid,
+    'domainId' => $domainId,
+]);
+
+if ($lmdns->delRecord()) {
+    echo 'success';
+} else {
+    echo 'del error';
+}
+
 
 
 

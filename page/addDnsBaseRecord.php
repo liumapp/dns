@@ -4,8 +4,8 @@
  * User: liumapp
  * Email: liumapp.com@gmail.com
  * homePage: http://www.liumapp.com
- * Date: 5/10/17
- * Time: 2:30 PM
+ * Date: 5/17/17
+ * Time: 2:42 PM
  */
 
 use WHMCS\ClientArea;
@@ -41,11 +41,11 @@ $webnic->initData($data);
 
 $lmdns->initData($data);
 
-$index = $lmdns->getNewIndex();
+$index = '1'; // for base Record
 
 $webnic->initData(['ipIndex' => $index , 'domain' => $domain]);
 
-$status = $webnic->registerRecord();
+$status = $webnic->registerBaseRecord();
 
 if ($webnic->isSuccess()) {
 

@@ -15,6 +15,8 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 class lmdns
 {
 
+    public $id;
+
     public $uid;
 
     public $domainId;
@@ -119,6 +121,22 @@ class lmdns
             ->setParameter(4, $this->value)
             ->setParameter(5, $this->ipIndex)
         ;
+
+        return $this->queryBuilder->execute();
+
+    }
+
+    public function delRecord ()
+    {
+
+        $this->queryBuilder->delete('lmdns')
+            ->where('id = :record_id')
+            ->andWhere('uid = :uid')
+            ->andWhere('domainId = :domainId')
+            ->setParameter(':record_id', $this->id)
+            ->setParameter(':uid' , $this->uid)
+            ->setParameter(':domainId' , $this->domainId)
+            ->execute();
 
         return $this->queryBuilder->execute();
 

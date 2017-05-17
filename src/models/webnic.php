@@ -69,14 +69,18 @@ class webnic  {
         $this->password = $config->api;
     }
 
-    public function registerRecord ()
+    public function registerRecord ($isBase = false)
     {
         $this->generateAccountInfo();
         $this->otime = date('Y-m-d H:m:s' , time());
         $this->generateOchecksum();
         switch ($this->type) {
             case 'A':
-                $result =  $this->registerARecord();
+                if ($isBase) {
+                    $result = $this->registerBaseRecord();
+                } else {
+                    $result =  $this->registerARecord();
+                }
                 break;
             case 'CNAME':
                 $result = $this->registerCNAMERecord();
@@ -171,6 +175,34 @@ class webnic  {
         curl_setopt($ch, CURLOPT_POSTFIELDS,
             $queryString
         );
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
+    }
+
+    public function registerBaseRecord ()
+    {
+        $ch = curl_init();
+        $url = $this->serverUrl;
+        $data = [
+            'encoding' => 'utf-8',
+            'source' => $this->source,
+            'otime'  => $this->otime,
+            'ochecksum' => $this->ochecksum,
+            'domain' => $this->domain,
+            'action' => $this->aAction,
+            'ip1' => $this->value,
+            'sub1' => '',
+        ];
+        $queryString = $this->webnic_params($data);
+        curl_setopt($ch , CURLOPT_URL , $url);
+        curl_setopt($ch , CURLOPT_RETURNTRANSFER , 1);
+        curl_setopt($ch , CURLOPT_SSL_VERIFYHOST , FALSE);
+        curl_setopt($ch , CURLOPT_SSL_VERIFYPEER , FALSE);
+        curl_setopt($ch , CURLOPT_TIMEOUT , 50);
+        curl_setopt($ch , CURLOPT_POST , 1);
+        curl_setopt($ch , CURLOPT_POSTFIELDS , $queryString);
 
         $response = curl_exec($ch);
         curl_close($ch);
