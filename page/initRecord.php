@@ -32,8 +32,7 @@ $queryBuilder
     ->from('lmdns')
     ->where('uid = ? and domainId = ?')
     ->setParameter(0, $uid)
-    ->setParameter(1, $domainId)
-;
+    ->setParameter(1, $domainId);
 
 $result = $queryBuilder->execute();
 

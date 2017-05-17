@@ -53,10 +53,29 @@ class lmdns
     public function initData(array $data)
     {
         foreach ($data as $key => $value) {
-
-            $this->{$key} = $value;
-
+            if (isset($this->{$key})) {
+                $this->{$key} = $value;
+            }
         }
+    }
+
+    /**
+     * @param array $config
+     * get your data according to uid , domainId and type
+     */
+    public function getData (array $config)
+    {
+        $result = $this->queryBuilder
+            ->select('*')
+            ->from($this->tableName)
+            ->where('uid = ? and domainId = ? and type = ?')
+            ->orderBy('ipIndex' , 'DESC')
+            ->setParameter(0 , $config['uid'])
+            ->setParameter(1 , $config['domainId'])
+            ->setParameter(2 , $config['type'])
+            ->execute();
+        $results = $result->fetchAll();
+        return $results;
     }
 
     public function getNewIndex ()
@@ -78,6 +97,11 @@ class lmdns
         }
     }
 
+    public function getUpdatedRecordId ()
+    {
+
+    }
+
     public function getNewRecordId ()
     {
         $sql = "SELECT LAST_INSERT_ID()";
@@ -97,6 +121,13 @@ class lmdns
         if ($this->subdomain == '') {
             $this->subdomain = '@';
         }
+    }
+
+    public function updateRecord ()
+    {
+//        $this->validate();
+//        $this->queryBuilder
+//            ->update('')
     }
 
     public function addRecord ()

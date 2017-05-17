@@ -56,9 +56,9 @@ class webnic  {
     public function initData(array $data)
     {
         foreach ($data as $key => $value) {
-
-            $this->{$key} = $value;
-
+            if (isset($this->{$key})) {
+                $this->{$key} = $value;
+            }
         }
     }
 
@@ -100,6 +100,30 @@ class webnic  {
         } else {
             throw new \ErrorException($info);
         }
+    }
+
+    public function updateA ()
+    {
+        $lmdns = new lmdns();
+        // 获取并封装旧值
+        $data = $lmdns->getData(['uid' => $this->uid , 'domainId' => $this->domainId , 'type' => 'A']);
+        // 更新新值
+        
+    }
+
+    public function updateCNAME ()
+    {
+
+    }
+
+    public function updateMX ()
+    {
+
+    }
+
+    public function updateSPF ()
+    {
+
     }
 
     public function isSuccess ()
