@@ -45,7 +45,7 @@ $index = '1'; // for base Record
 
 $webnic->initData(['ipIndex' => $index , 'domain' => $domain]);
 
-$status = $webnic->registerBaseRecord();
+$status = $webnic->registerRecord(true);
 
 if ($webnic->isSuccess()) {
 
