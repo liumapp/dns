@@ -140,7 +140,6 @@ class webnic
         } else {
             throw new \ErrorException($info);
         }
-
     }
 
     public function deleteABase()
@@ -150,7 +149,7 @@ class webnic
 
     public function deleteA()
     {
-        
+
         return 1;
     }
 
