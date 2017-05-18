@@ -12,7 +12,8 @@ namespace liumapp\dns\models;
 
 require_once  __DIR__ . '/../../../../../../lmConfig.php';
 
-class webnic  {
+class webnic
+{
 
     public $uid;
 
@@ -62,24 +63,24 @@ class webnic  {
         }
     }
 
-    public function generateAccountInfo ()
+    public function generateAccountInfo()
     {
         $config = new \lmConfig();
         $this->source = $config->source;
         $this->password = $config->api;
     }
 
-    public function registerRecord ($isBase = false)
+    public function registerRecord($isBase = false)
     {
         $this->generateAccountInfo();
-        $this->otime = date('Y-m-d H:m:s' , time());
+        $this->otime = date('Y-m-d H:m:s', time());
         $this->generateOchecksum();
         switch ($this->type) {
             case 'A':
                 if ($isBase) {
                     $result = $this->registerBaseRecord();
                 } else {
-                    $result =  $this->registerARecord();
+                    $result = $this->registerARecord();
                 }
                 break;
             case 'CNAME':
@@ -102,13 +103,174 @@ class webnic  {
         }
     }
 
+    public function delete($isBase = false)
+    {
+        $this->generateAccountInfo();
+        $this->otime = date('Y-m-d H:m:s', time());
+        $this->generateOchecksum();
+        switch ($this->type) {
+            case 'A':
+                if ($isBase) {
+                    $result = $this->deleteABase();
+                } else {
+                    $result = $this->deleteA();
+                }
+                break;
+            case 'CNAME':
+                $result = $this->deleteCNAME();
+                break;
+            case 'MX':
+                $result = $this->deleteMX();
+                break;
+            case 'SPF':
+                $result = $this->deleteSPF();
+                break;
+            default:
+                throw new \ErrorException('plz input your type');
+                break;
+        }
+
+        if (($info = $this->translateResult($result)) == 'success') {
+            $this->isSuccess = true;
+        } else {
+            throw new \ErrorException($info);
+        }
+    }
+
+    public function deleteABase()
+    {
+        return 1;
+    }
+
+    public function deleteA()
+    {
+        return 1;
+    }
+
+    public function deleteCNAME()
+    {
+        return 1;
+    }
+
+    public function deleteMX()
+    {
+        return 1;
+    }
+
+    public function deleteSPF()
+    {
+        return 1;
+    }
+
+    public function update ($isBase = false)
+    {
+        $this->generateAccountInfo();
+        $this->otime = date('Y-m-d H:m:s' , time());
+        $this->generateOchecksum();
+        switch ($this->type) {
+            case 'A':
+                if ($isBase) {
+                    $result = $this->updateABase();
+                } else {
+                    $result = $this->updateA();
+                }
+
+                break;
+            case 'CNAME':
+                $result = $this->updateCNAME();
+                break;
+            case 'MX':
+                $result = $this->updateMX();
+                break;
+            case 'SPF':
+                $result = $this->updateSPF();
+                break;
+            default:
+                $result = $this->updateA();
+                break;
+        }
+        if (($info = $this->translateResult($result)) == 'success') {
+            $this->isSuccess = true;
+        } else {
+            throw new \ErrorException($info);
+        }
+
+    }
+
+    public function webnicData (array $data)
+    {
+        $result = array(
+            'encoding' => 'utf-8',
+            'source' => $this->source,
+            'otime' => $this->otime,
+            'ochecksum' => $this->ochecksum,
+            'domain' => $this->domain,
+            'action' => $this->aAction,
+        );
+
+        foreach ($data as $key => $val) {
+            if ($val['ipIndex'] == 1) {
+                $result['sub1'] = '';
+                $result['ip1'] = $val['value'];
+            } else {
+                $result['sub' . $val['ipIndex']] = $val['subdomain'];
+                $result['ip' . $val['ipIndex']] = $val['value'];
+            }
+
+        }
+
+        return $result;
+    }
+
+    public function updateABase ()
+    {
+        $lmdns = new lmdns();
+        // 获取并封装旧值
+        $data = $lmdns->getData(['uid' => $this->uid , 'domainId' => $this->domainId , 'type' => 'A']);
+        $data = $this->webnicData($data);
+        // 更新新值
+        $data['sub1'] = '';
+        $data['ip1'] = $this->value;
+        //访问API
+        $ch = curl_init();
+        $url = $this->serverUrl;
+        $queryString = $this->webnic_params($data);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            $queryString
+        );
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
+    }
+
     public function updateA ()
     {
         $lmdns = new lmdns();
         // 获取并封装旧值
         $data = $lmdns->getData(['uid' => $this->uid , 'domainId' => $this->domainId , 'type' => 'A']);
+        $data = $this->webnicData($data);
         // 更新新值
-        
+        $ch = curl_init();
+        $url = $this->serverUrl;
+        $queryString = $this->webnic_params($data);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            $queryString
+        );
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
     }
 
     public function updateCNAME ()

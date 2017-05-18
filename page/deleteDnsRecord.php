@@ -18,26 +18,50 @@ require_once __DIR__ . '/../../../../../init.php';
 
 $ca = new ClientArea();
 
-$id = addslashes($_POST['id']);
-
 $uid = $ca->getUserID();
 
-$domainId = addslashes($_POST['domainId']);
+$domainId = $_POST['domainId'];
+
+$data = [
+    'id' => addslashes($_POST['id']),
+    'uid' => $uid,
+    'domainId' => $domainId,
+];
+
+$domain = Capsule::table('tbldomains')
+    ->where('id', '=', $domainId)->pluck('domain');
+
+$webnic = new \liumapp\dns\models\webnic();
 
 $lmdns = new \liumapp\dns\models\lmdns();
 
-$lmdns->initData([
-    'id' => $id,
-    'uid' => $uid,
-    'domainId' => $domainId,
-]);
+$webnic->initData($data);
 
-if ($lmdns->delRecord()) {
-    echo 'success';
+$lmdns->initData($data);
+
+$index = $lmdns->getNewIndex();
+
+$webnic->initData(['ipIndex' => $index , 'domain' => $domain]);
+
+$status = $webnic->delete();
+
+if ($webnic->isSuccess()) {
+
+    $lmdns->initData(['ipIndex' => $index]);
+
+    if ( $lmdns->delRecord() ) {
+
+        echo 'success';
+
+    } else {
+
+        echo 'save to mysql faild';
+
+    }
+
 } else {
-    echo 'del error';
+
+    echo false;
+
 }
-
-
-
 

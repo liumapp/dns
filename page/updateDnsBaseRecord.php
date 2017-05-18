@@ -8,7 +8,6 @@
  * Time: 7:11 PM
  */
 
-
 use WHMCS\ClientArea;
 
 use WHMCS\Database\Capsule;
@@ -47,7 +46,7 @@ $index = '1'; // for base Record
 
 $webnic->initData(['ipIndex' => $index , 'domain' => $domain]);
 
-$webnic->updateA();
+$webnic->update();
 
 if ($webnic->isSuccess()) {
 
@@ -55,7 +54,7 @@ if ($webnic->isSuccess()) {
 
     if ( $lmdns->updateRecord()) {
 
-        echo $lmdns->getUpdatedRecordId();
+        echo $lmdns->id;
 
     } else {
 

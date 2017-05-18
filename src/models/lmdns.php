@@ -69,7 +69,7 @@ class lmdns
             ->select('*')
             ->from($this->tableName)
             ->where('uid = ? and domainId = ? and type = ?')
-            ->orderBy('ipIndex' , 'DESC')
+            ->orderBy('ipIndex' , 'ASC')
             ->setParameter(0 , $config['uid'])
             ->setParameter(1 , $config['domainId'])
             ->setParameter(2 , $config['type'])
@@ -97,11 +97,6 @@ class lmdns
         }
     }
 
-    public function getUpdatedRecordId ()
-    {
-
-    }
-
     public function getNewRecordId ()
     {
         $sql = "SELECT LAST_INSERT_ID()";
@@ -125,9 +120,15 @@ class lmdns
 
     public function updateRecord ()
     {
-//        $this->validate();
-//        $this->queryBuilder
-//            ->update('')
+        $this->validate();
+        $status = $this->queryBuilder
+            ->update('lmdns')
+            ->set('subdomain' , $this->subdomain)
+            ->set('value' , $this->value)
+            ->where('id = ?' )
+            ->setParameter(0, $this->id)
+            ->execute();
+        return $status;
     }
 
     public function addRecord ()

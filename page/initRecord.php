@@ -9,8 +9,6 @@
  */
 use WHMCS\ClientArea;
 
-use WHMCS\Database\Capsule;
-
 require_once '../vendor/autoload.php';
 
 require_once '../load.php';
@@ -37,5 +35,6 @@ $queryBuilder
 $result = $queryBuilder->execute();
 
 $rows = $result->fetchAll();
+
 
 echo json_encode($rows);
