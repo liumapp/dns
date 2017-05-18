@@ -103,6 +103,11 @@ class webnic
         }
     }
 
+    /**
+     * @param bool $isBase
+     * @throws \ErrorException
+     * once you delete one item , you must re-built the ipIndex
+     */
     public function delete($isBase = false)
     {
         $this->generateAccountInfo();
@@ -135,15 +140,17 @@ class webnic
         } else {
             throw new \ErrorException($info);
         }
+
     }
 
     public function deleteABase()
     {
-        return 1;
+        throw new \ErrorException('根域名的解析记录只允许修改，不允许删除');
     }
 
     public function deleteA()
     {
+        
         return 1;
     }
 

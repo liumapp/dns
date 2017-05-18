@@ -78,6 +78,17 @@ class lmdns
         return $results;
     }
 
+    public function select ()
+    {
+        $result = $this->queryBuilder
+            ->select('*')
+            ->from($this->tableName)
+            ->where('id = ?')
+            ->setParameter(0 , $this->id)
+            ->execute();
+        return $result->fetch();
+    }
+
     public function getNewIndex ()
     {
         $result = $this->queryBuilder

@@ -39,9 +39,10 @@ $webnic->initData($data);
 
 $lmdns->initData($data);
 
-$index = $lmdns->getNewIndex();
+//get the record
+$data = $lmdns->select();
 
-$webnic->initData(['ipIndex' => $index , 'domain' => $domain]);
+$webnic->initData($data);
 
 $status = $webnic->delete();
 
