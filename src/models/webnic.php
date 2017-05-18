@@ -63,6 +63,117 @@ class webnic
         }
     }
 
+    /**
+     *  Update dns record according to your data from database
+     */
+    public function updateDNS ()
+    {
+        $lmdns = new lmdns();
+        $data = $lmdns->getData(['uid' => $this->uid , 'domainId' => $this->domainId , 'type' => $this->type]);
+        $this->generateAccountInfo();
+        $this->otime = date('Y-m-d H:m:s' , time());
+        $this->generateOchecksum();
+        switch($this->type) {
+            case 'A':
+                $data = $this->buildAData($data);
+                break;
+            case 'CNAME':
+                $data = $this->buildCNAMEData($data);
+                break;
+            case 'MX':
+                $data = $this->buildMXData($data);
+                break;
+            case 'SPF':
+                $data = $this->buildSPFData($data);
+                break;
+            default:
+                throw new \ErrorException('invalid type');
+                break;
+        }
+        $result = $this->sendInfo($data);
+        if (($info = $this->translateResult($result)) == 'success') {
+            $this->isSuccess = true;
+        } else {
+            throw new \ErrorException($info);
+        }
+        return true;
+    }
+
+    public function buildAData($data)
+    {
+
+        $result = [
+            'action' => $this->aAction,
+            'domain' => $this->domain,
+            'source' => $this->source,
+            'otime'  => $this->otime,
+            'ochecksum' => $this->ochecksum,
+        ];
+
+        foreach ($data as $d) {
+
+            if ($d['subdomain'] == '@') {
+
+                $result['sub' .$d['ipIndex']] = '';
+
+            } else {
+
+                $result['sub' . $d['ipIndex']] = $d['subdomain'];
+
+            }
+
+            $result['ip' .$d['ipIndex']] = $d['value'];
+
+        }
+
+        return $result;
+
+    }
+
+    public function buildCNAMEData($data)
+    {
+        $data['action'] = $this->cnameAction;
+        return $data;
+    }
+
+    public function buildMXData($data)
+    {
+        $data['action'] = $this->mxAction;
+        return $data;
+    }
+
+    public function buildSPFData($data)
+    {
+        $data['action'] = $this->spfAction;
+        return $data;
+    }
+
+    public function sendInfo (array $data)
+    {
+        $ch = curl_init();
+        $url = $this->serverUrl;
+        if (!isset($data['encoding'])) {
+            $data['encoding'] = 'utf-8';
+        }
+        $queryString = $this->webnic_params($data);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER , 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            $queryString
+        );
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
+    }
+
+
+
+
+
     public function generateAccountInfo()
     {
         $config = new \lmConfig();
