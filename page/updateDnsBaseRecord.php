@@ -42,29 +42,10 @@ $webnic->initData($data);
 
 $lmdns->initData($data);
 
-$index = '1'; // for base Record
+$lmdns->updateRecord();
 
-$webnic->initData(['ipIndex' => $index , 'domain' => $domain]);
+$lmdns->ReloadIpIndex($uid , $domainId , $lmdns->type);
 
-$webnic->update();
+$webnic->updateDNS();
 
-if ($webnic->isSuccess()) {
-
-    $lmdns->initData(['ipIndex' => $index]);
-
-    if ( $lmdns->updateRecord()) {
-
-        echo $lmdns->id;
-
-    } else {
-
-        echo 'save to mysql faild';
-
-    }
-
-} else {
-
-    echo false;
-
-}
-
+echo $lmdns->id;

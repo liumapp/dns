@@ -33,36 +33,16 @@ $domain = Capsule::table('tbldomains')
 
 $webnic = new \liumapp\dns\models\webnic();
 
-$lmdns = new \liumapp\dns\models\lmdns();
-
 $webnic->initData($data);
 
-$lmdns->initData($data);
+$lmdns = \liumapp\dns\models\lmdns::findOne($data);
 
-//get the record
-$data = $lmdns->select();
+if($lmdns->delRecord()) {
 
-$webnic->initData($data);
+    $lmdns->ReloadIpIndex($uid , $domainId , $lmdns->type);
 
-$status = $webnic->delete();
+    $webnic->updateDNS();
 
-if ($webnic->isSuccess()) {
-
-    $lmdns->initData(['ipIndex' => $index]);
-
-    if ( $lmdns->delRecord() ) {
-
-        echo 'success';
-
-    } else {
-
-        echo 'save to mysql faild';
-
-    }
-
-} else {
-
-    echo false;
+    echo 'success';
 
 }
-
