@@ -59,6 +59,7 @@ seajs.use(\'main\' , function (main) {
             $.lmParam.updateDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/updateDnsRecord.php";
             $.lmParam.deleteDnsRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/deleteDnsRecord.php";
             $.lmParam.addDnsBaseUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/addDnsBaseRecord.php";
+            $.lmParam.updateDnsBaseRecordUrl = "http://118.190.133.67/whmcs/vendor2/vendor/liumapp/dns/page/updateDnsBaseRecord.php";
             main.init();
         });
 

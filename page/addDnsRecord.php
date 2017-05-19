@@ -39,6 +39,8 @@ $lmdns = new \liumapp\dns\models\lmdns();
 
 $webnic->initData($data);
 
+$webnic->initData(['domain' => $domain]);
+
 $lmdns->initData($data);
 
 $index = $lmdns->getNewIndex();
@@ -48,6 +50,7 @@ $lmdns->addRecord();
 $id = $lmdns->getNewRecordId();
 
 $lmdns->ReloadIpIndex($uid , $domainId , $lmdns->type);
+
 
 $webnic->updateDNS();
 

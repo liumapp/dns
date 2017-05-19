@@ -10,6 +10,8 @@
 
 namespace liumapp\dns\models;
 
+use Composer\Script\PackageEvent;
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 class lmdns
@@ -31,31 +33,16 @@ class lmdns
 
     public $tableName = 'lmdns';
 
-    /**
-     * @var \Doctrine\DBAL\Connection
-     */
-    public $conn;
-
-    /**
-     * @var \Doctrine\DBAL\Query\QueryBuilder
-     */
-    public $queryBuilder;
-
-    public function __construct()
-    {
-
-        $this->conn = \liumapp\dns\models\db::getInstance();
-
-        $this->queryBuilder = $this->conn->createQueryBuilder();
-
-    }
-
     public function initData(array $data)
     {
         foreach ($data as $key => $value) {
-            if (isset($this->{$key})) {
+
+            if (property_exists( $this , $key)) {
                 $this->{$key} = $value;
+            } else {
+
             }
+
         }
     }
 
@@ -65,16 +52,19 @@ class lmdns
      */
     public function getData (array $config)
     {
-        $result = $this->queryBuilder
+        $conn = db::getInstance();
+        $queryBuilder = $conn->createQueryBuilder();
+        $result = $queryBuilder
             ->select('*')
             ->from($this->tableName)
             ->where('uid = ? and domainId = ? and type = ?')
-            ->orderBy('ipIndex' , 'ASC')
+            ->orderBy('ipIndex' , 'DESC')
             ->setParameter(0 , $config['uid'])
             ->setParameter(1 , $config['domainId'])
             ->setParameter(2 , $config['type'])
             ->execute();
         $results = $result->fetchAll();
+        $conn->close();
         return $results;
     }
 
@@ -95,39 +85,52 @@ class lmdns
         $data = $data->fetch();
         $model = new lmdns();
         $model->initData($data);
+        $conn->close();
         return $model;
     }
 
     public function select ()
     {
-        $result = $this->queryBuilder
+        $conn = db::getInstance();
+        $queryBuilder = $conn->createQueryBuilder();
+        $result = $queryBuilder
             ->select('*')
             ->from($this->tableName)
             ->where('id = ?')
             ->setParameter(0 , $this->id)
             ->execute();
-        return $result->fetch();
+        $result = $result->fetch();
+        $conn->close();
+        return $result;
     }
 
     public function updateRecord ()
     {
+        $conn = db::getInstance();
+        $queryBuilder = $conn->createQueryBuilder();
         $this->validate();
-        $status = $this->queryBuilder
+        $queryBuilder
             ->update('lmdns')
-            ->set('subdomain' , $this->subdomain)
-            ->set('value' , $this->value)
-            ->set('type' , $this->type)
-            ->set('ipIndex' , $this->ipIndex)
-            ->where('id = ?' )
-            ->setParameter(0, $this->id)
-            ->execute();
-        return $status;
+            ->set('subdomain' , ':subdomain')
+            ->set('value' , ':value')
+            ->set('type' , ':type')
+            ->set('ipIndex' , ':ipIndex')
+            ->where('id = :id' )
+            ->setParameter(':subdomain' , $this->subdomain)
+            ->setParameter(':value' , $this->value)
+            ->setParameter(':type' , $this->type)
+            ->setParameter(':ipIndex' , $this->ipIndex)
+            ->setParameter(':id', $this->id);
+        $conn->close();
+        return $queryBuilder->execute();
     }
 
     public function addRecord ()
     {
+        $conn = db::getInstance();
+        $queryBuilder = $conn->createQueryBuilder();
         $this->validate();
-        $this->queryBuilder
+        $queryBuilder
             ->insert('lmdns')
             ->values(
                 array(
@@ -147,14 +150,16 @@ class lmdns
             ->setParameter(5, $this->ipIndex)
         ;
 
-        return $this->queryBuilder->execute();
-
+        $result = $queryBuilder->execute();
+        $conn->close();
+        return $result;
     }
 
     public function delRecord ()
     {
-
-        $this->queryBuilder->delete('lmdns')
+        $conn = db::getInstance();
+        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder->delete('lmdns')
             ->where('id = :record_id')
             ->andWhere('uid = :uid')
             ->andWhere('domainId = :domainId')
@@ -163,18 +168,20 @@ class lmdns
             ->setParameter(':domainId' , $this->domainId)
             ->execute();
 
-        return $this->queryBuilder->execute();
+        $result = $queryBuilder->execute();
+        $conn->close();
+        return $result;
 
     }
 
     public function ReloadIpIndex ($uid , $domainId , $type)
     {
         $data = $this->getData(['uid' => $uid , 'domainId' => $domainId , 'type' => $type]);
-        $i = 1;foreach ($data as $d)
+        $i = 1;
+        foreach ($data as $d)
         {
-            $ipIndex = $d['ipIndex'];
             $model = new lmdns();
-            $model->initData([$d]);
+            $model->initData($d);
             $model->ipIndex = $i;
             $model->updateRecord();
             $i++;
@@ -183,7 +190,9 @@ class lmdns
 
     public function getNewIndex ()
     {
-        $result = $this->queryBuilder
+        $conn = db::getInstance();
+        $queryBuilder = $conn->createQueryBuilder();
+        $result = $queryBuilder
              ->select('ipIndex')
              ->from($this->tableName)
              ->where('uid = ? and domainId = ? and type = ?')
@@ -193,20 +202,24 @@ class lmdns
              ->setParameter(2 , $this->type)
              ->execute();
         $results = $result->fetch();
+        $conn->close();
         if (!isset($results['ipIndex'])) {
             return 1;
         } else {
-            return $result['ipIndex'] + 1;
+            return $results['ipIndex'] + 1;
         }
     }
 
     public function getNewRecordId ()
     {
+        $conn = db::getInstance();
         $sql = "SELECT LAST_INSERT_ID()";
 
-        $stmt = $this->conn->query($sql); // Simple, but has several drawbacks
+        $stmt = $conn->query($sql); // Simple, but has several drawbacks
 
         $result = $stmt->fetchColumn(0);
+
+        $conn->close();
 
         return $result;//返回id
     }

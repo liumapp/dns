@@ -40,6 +40,8 @@ $lmdns = new \liumapp\dns\models\lmdns();
 
 $webnic->initData($data);
 
+$webnic->initData(['domain' => $domain]);
+
 $lmdns->initData($data);
 
 $lmdns->updateRecord();

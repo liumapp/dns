@@ -35,6 +35,8 @@ $webnic = new \liumapp\dns\models\webnic();
 
 $webnic->initData($data);
 
+$webnic->initData(['domain' => $domain]);
+
 $lmdns = \liumapp\dns\models\lmdns::findOne($data);
 
 if($lmdns->delRecord()) {
