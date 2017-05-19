@@ -134,8 +134,29 @@ class webnic
 
     public function buildCNAMEData($data)
     {
-        $data['action'] = $this->cnameAction;
-        return $data;
+
+        $result = [
+            'action' => $this->cnameAction,
+            'domain' => $this->domain,
+            'source' => $this->source,
+            'otime'  => $this->otime,
+            'ochecksum' => $this->ochecksum,
+        ];
+
+        foreach ($data as $d) {
+
+            if ($d['ipIndex'] == 1) {
+                $result['c'] = $d['value'];
+                $result['cs'] = $d['subdomain'];
+            } else {
+                $result['c' . $d['ipIndex']] = $d['value'];
+                $result['cs' .$d['ipIndex']] = $d['subdomain'];
+            }
+
+        }
+
+        return $result;
+
     }
 
     public function buildMXData($data)
