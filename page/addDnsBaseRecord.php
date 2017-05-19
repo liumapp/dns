@@ -42,21 +42,14 @@ $webnic->initData($data);
 
 $lmdns->initData($data);
 
-$index = '1'; // for base Record
+$lmdns->addRecord();
 
-$lmdns->initData(['ipIndex' => $index]);
+$id = $lmdns->getNewRecordId();
 
-if ($lmdns->addRecord()) {
+$lmdns->ReloadIpIndex($uid  , $domainId , $lmdns->type);
 
-    $webnic->updateDNS();
+$webnic->updateDNS();
 
-    echo $lmdns->getNewRecordId();
-
-} else {
-
-    throw new ErrorException('save to database error');
-
-}
-
+echo $id;
 
 

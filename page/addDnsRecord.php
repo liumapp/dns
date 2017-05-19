@@ -43,27 +43,13 @@ $lmdns->initData($data);
 
 $index = $lmdns->getNewIndex();
 
-$webnic->initData(['ipIndex' => $index , 'domain' => $domain]);
+$lmdns->addRecord();
 
-$status = $webnic->registerRecord();
+$id = $lmdns->getNewRecordId();
 
-if ($webnic->isSuccess()) {
+$lmdns->ReloadIpIndex($uid , $domainId , $lmdns->type);
 
-    $lmdns->initData(['ipIndex' => $index]);
+$webnic->updateDNS();
 
-    if ( $lmdns->addRecord() ) {
-
-        echo $lmdns->getNewRecordId();
-
-    } else {
-
-        echo 'save to mysql faild';
-
-    }
-
-} else {
-
-    echo false;
-
-}
+echo $id;
 
