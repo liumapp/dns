@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: liumapp
@@ -43,27 +44,19 @@ $lmdns->initData($data);
 
 $index = '1'; // for base Record
 
-$webnic->initData(['ipIndex' => $index , 'domain' => $domain]);
+$lmdns->initData(['ipIndex' => $index]);
 
-$status = $webnic->registerRecord(true);
+if ($lmdns->addRecord()) {
 
-if ($webnic->isSuccess()) {
+    $webnic->updateDNS();
 
-    $lmdns->initData(['ipIndex' => $index]);
-
-    if ( $lmdns->addRecord() ) {
-
-        echo $lmdns->getNewRecordId();
-
-    } else {
-
-        echo 'save to mysql faild';
-
-    }
+    echo $lmdns->getNewRecordId();
 
 } else {
 
-    echo false;
+    throw new ErrorException('save to database error');
 
 }
+
+
 

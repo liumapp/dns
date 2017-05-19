@@ -78,6 +78,26 @@ class lmdns
         return $results;
     }
 
+    public static function findOne (array $config)
+    {
+        $conn = db::getInstance();
+        $queryBuilder = $conn->createQueryBuilder();
+        $data = $queryBuilder
+            ->select('*')
+            ->from('lmdns')
+            ->where('id = :id')
+            ->andWhere('uid = :uid')
+            ->andWhere('domainId = :domainId')
+            ->setParameter(':id' , $config['id'])
+            ->setParameter(':uid' , $config['uid'])
+            ->setParameter(':domainId' , $config['domainId'])
+            ->execute();
+        $data = $data->fetch();
+        $model = new lmdns();
+        $model->initData($data);
+        return $model;
+    }
+
     public function select ()
     {
         $result = $this->queryBuilder
@@ -89,46 +109,6 @@ class lmdns
         return $result->fetch();
     }
 
-    public function getNewIndex ()
-    {
-        $result = $this->queryBuilder
-             ->select('ipIndex')
-             ->from($this->tableName)
-             ->where('uid = ? and domainId = ? and type = ?')
-             ->orderBy('ipIndex' , 'DESC')
-             ->setParameter(0 , $this->uid)
-             ->setParameter(1 , $this->domainId)
-             ->setParameter(2 , $this->type)
-             ->execute();
-        $results = $result->fetch();
-        if (!isset($results['ipIndex'])) {
-            return 1;
-        } else {
-            return $result['ipIndex'] + 1;
-        }
-    }
-
-    public function getNewRecordId ()
-    {
-        $sql = "SELECT LAST_INSERT_ID()";
-
-        $stmt = $this->conn->query($sql); // Simple, but has several drawbacks
-
-        $result = $stmt->fetchColumn(0);
-
-        return $result;//返回id
-    }
-
-    public function validate ()
-    {
-        if ($this->type == '') {
-            $this->type = 'A';
-        }
-        if ($this->subdomain == '') {
-            $this->subdomain = '@';
-        }
-    }
-
     public function updateRecord ()
     {
         $this->validate();
@@ -136,6 +116,8 @@ class lmdns
             ->update('lmdns')
             ->set('subdomain' , $this->subdomain)
             ->set('value' , $this->value)
+            ->set('type' , $this->type)
+            ->set('ipIndex' , $this->ipIndex)
             ->where('id = ?' )
             ->setParameter(0, $this->id)
             ->execute();
@@ -185,4 +167,57 @@ class lmdns
 
     }
 
+    public function ReloadIpIndex ($uid , $domainId , $type)
+    {
+        $data = $this->getData(['uid' => $uid , 'domainId' => $domainId , 'type' => $type]);
+        $i = 1;foreach ($data as $d)
+        {
+            $ipIndex = $d['ipIndex'];
+            $model = new lmdns();
+            $model->initData([$d]);
+            $model->ipIndex = $i;
+            $model->updateRecord();
+            $i++;
+        }
+    }
+
+    public function getNewIndex ()
+    {
+        $result = $this->queryBuilder
+             ->select('ipIndex')
+             ->from($this->tableName)
+             ->where('uid = ? and domainId = ? and type = ?')
+             ->orderBy('ipIndex' , 'DESC')
+             ->setParameter(0 , $this->uid)
+             ->setParameter(1 , $this->domainId)
+             ->setParameter(2 , $this->type)
+             ->execute();
+        $results = $result->fetch();
+        if (!isset($results['ipIndex'])) {
+            return 1;
+        } else {
+            return $result['ipIndex'] + 1;
+        }
+    }
+
+    public function getNewRecordId ()
+    {
+        $sql = "SELECT LAST_INSERT_ID()";
+
+        $stmt = $this->conn->query($sql); // Simple, but has several drawbacks
+
+        $result = $stmt->fetchColumn(0);
+
+        return $result;//返回id
+    }
+
+    public function validate ()
+    {
+        if ($this->type == '') {
+            $this->type = 'A';
+        }
+        if ($this->subdomain == '') {
+            $this->subdomain = '@';
+        }
+    }
 }
