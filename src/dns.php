@@ -31,7 +31,7 @@ class dns
         echo '
 <div class="lm-dns-container">
     <div>
-        <button class="lm-add-dns-record">＋添加解析</button>
+        <button class="lm-add-dns-record btn btn-default">＋添加解析</button>
     </div>
     <table class="lm-dns-table">
         <tr class="lm-title-tr">
