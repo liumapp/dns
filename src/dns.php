@@ -21,7 +21,8 @@ class dns
 
     public function init ()
     {
-        echo "<link rel='stylesheet' href='vendor2/vendor/liumapp/dnspannel/dist/dnspannel.css'>";
+        $rand = rand(100 , 999);
+        echo "<link rel='stylesheet' href='vendor2/vendor/liumapp/dnspannel/dist/dnspannel.css?t={$rand}'>";
         echo "<script src='vendor2/vendor/liumapp/dnspannel/node_modules/seajs/dist/sea.js'></script>";
         echo "<script src='vendor2/vendor/liumapp/dnspannel/dist/dnspannel.js'></script>";
     }

@@ -58,7 +58,7 @@ class lmdns
             ->select('*')
             ->from($this->tableName)
             ->where('uid = ? and domainId = ? and type = ?')
-            ->orderBy('ipIndex' , 'DESC')
+            ->orderBy('id' , 'ASC')
             ->setParameter(0 , $config['uid'])
             ->setParameter(1 , $config['domainId'])
             ->setParameter(2 , $config['type'])
